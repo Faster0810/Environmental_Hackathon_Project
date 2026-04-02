@@ -1,417 +1,981 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>GreenLedger</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GreenLedger</title>
+    <!-- Alert Banner -->
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #0f1a0f;
-      color: #e8f5e9;
-      min-height: 100vh;
-      padding: 32px 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1a0f;
+            color: #e8f5e9;
+            min-height: 100vh;
+            padding: 32px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-    h1 { font-size: 28px; font-weight: 600; color: #69f0ae; margin-bottom: 4px; }
-    .subtitle { color: #81c784; font-size: 14px; margin-bottom: 32px; }
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #69f0ae;
+            margin-bottom: 4px;
+        }
 
-    .card {
-      background: #1b2e1b;
-      border: 1px solid #2e4a2e;
-      border-radius: 16px;
-      padding: 24px;
-      margin-bottom: 20px;
-    }
+        .subtitle {
+            color: #81c784;
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
 
-    .card h2 {
-      font-size: 13px;
-      color: #81c784;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
-    }
+        .card {
+            background: #1b2e1b;
+            border: 1px solid #2e4a2e;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
 
-    .score-display { display: flex; align-items: center; gap: 24px; }
+        .card h2 {
+            font-size: 13px;
+            color: #81c784;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
 
-    .score-circle {
-      width: 120px; height: 120px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; flex-direction: column;
-      border: 4px solid #69f0ae; flex-shrink: 0;
-      transition: border-color 0.5s;
-    }
+        /* ── NEW: Weather Card ─────────────────────────── */
+        .weather-grid {
+            display: grid;
+            grid-template-columns: auto 1fr 1fr 1fr;
+            gap: 16px;
+            align-items: center;
+        }
 
-    .score-circle .number { font-size: 36px; font-weight: 700; color: #69f0ae; transition: color 0.5s; }
-    .score-circle .label { font-size: 11px; color: #81c784; }
-    .score-info h3 { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-    .score-info p { font-size: 13px; color: #81c784; line-height: 1.6; }
+        .weather-temp-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-right: 16px;
+            border-right: 1px solid #2e4a2e;
+        }
 
-    .risk-low    { border-color: #69f0ae !important; }
-    .risk-low .number { color: #69f0ae !important; }
-    .risk-medium { border-color: #ffb74d !important; }
-    .risk-medium .number { color: #ffb74d !important; }
-    .risk-high   { border-color: #ff5252 !important; }
-    .risk-high .number { color: #ff5252 !important; }
+        .weather-temp {
+            font-size: 42px;
+            font-weight: 700;
+            color: #69f0ae;
+            line-height: 1;
+        }
 
-    .events-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .weather-desc {
+            font-size: 11px;
+            color: #81c784;
+            margin-top: 4px;
+            text-align: center;
+        }
 
-    .event-item {
-      display: flex; align-items: center; gap: 10px;
-      background: #0f1a0f; border: 1px solid #2e4a2e;
-      border-radius: 10px; padding: 12px; cursor: pointer; transition: border-color 0.2s;
-    }
-    .event-item:hover { border-color: #69f0ae; }
-    .event-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #69f0ae; cursor: pointer; }
-    .event-item span { font-size: 13px; color: #e8f5e9; }
+        .weather-stat {
+            background: #0f1a0f;
+            border: 1px solid #2e4a2e;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
 
-    button {
-      width: 100%; padding: 14px;
-      background: #69f0ae; color: #0f1a0f;
-      border: none; border-radius: 12px;
-      font-size: 15px; font-weight: 600;
-      cursor: pointer; margin-top: 16px; transition: opacity 0.2s;
-    }
-    button:hover { opacity: 0.85; }
+        .weather-stat .ws-val {
+            font-size: 20px;
+            font-weight: 600;
+        }
 
-    .result-box { display: none; margin-top: 16px; background: #0f1a0f; border: 1px solid #69f0ae; border-radius: 12px; padding: 16px; }
-    .result-box.show { display: block; }
+        .weather-stat .ws-lbl {
+            font-size: 11px;
+            color: #81c784;
+            margin-top: 3px;
+        }
 
-    .result-row {
-      display: flex; justify-content: space-between;
-      font-size: 13px; padding: 6px 0;
-      border-bottom: 1px solid #2e4a2e; color: #81c784;
-    }
-    .result-row:last-child { border-bottom: none; }
-    .result-row span:last-child { color: #ff5252; font-weight: 600; }
+        /* AQI badge colors */
+        .aqi-good {
+            color: #69f0ae;
+        }
 
-    .result-total {
-      display: flex; justify-content: space-between;
-      font-size: 16px; font-weight: 700;
-      margin-top: 12px; color: #e8f5e9;
-    }
-    .result-total span:last-child { color: #ff5252; }
+        .aqi-fair {
+            color: #b2ff59;
+        }
 
-    /* What-If section */
-    .whatif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .aqi-moderate {
+            color: #ffb74d;
+        }
 
-    .whatif-control label {
-      display: block; font-size: 12px; color: #81c784;
-      margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;
-    }
+        .aqi-poor {
+            color: #ff8a65;
+        }
 
-    .whatif-control input[type="range"] {
-      width: 100%; accent-color: #69f0ae; cursor: pointer;
-    }
+        .aqi-verypoor {
+            color: #ff5252;
+        }
 
-    .whatif-control .val {
-      font-size: 13px; color: #69f0ae; margin-top: 4px; font-weight: 600;
-    }
+        .weather-debt-notice {
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            display: none;
+            /* shown by JS when AQI adds debt */
+        }
 
-    .toggle-row {
-      display: flex; align-items: center; justify-content: space-between;
-      background: #0f1a0f; border: 1px solid #2e4a2e;
-      border-radius: 10px; padding: 12px 16px; margin-bottom: 10px;
-    }
+        .weather-debt-notice.show {
+            display: block;
+        }
 
-    .toggle-row span { font-size: 13px; }
+        .weather-debt-notice.warn {
+            background: rgba(255, 183, 77, 0.12);
+            border: 1px solid #ffb74d;
+            color: #ffb74d;
+        }
 
-    .toggle {
-      position: relative; width: 44px; height: 24px;
-      background: #2e4a2e; border-radius: 12px;
-      cursor: pointer; transition: background 0.3s;
-    }
-    .toggle.on { background: #69f0ae; }
-    .toggle::after {
-      content: ''; position: absolute;
-      top: 3px; left: 3px;
-      width: 18px; height: 18px;
-      background: #fff; border-radius: 50%;
-      transition: transform 0.3s;
-    }
-    .toggle.on::after { transform: translateX(20px); }
+        .weather-debt-notice.danger {
+            background: rgba(255, 82, 82, 0.12);
+            border: 1px solid #ff5252;
+            color: #ff5252;
+        }
 
-    .whatif-result {
-      display: none; margin-top: 16px;
-      background: #0f1a0f; border: 1px solid #2e4a2e;
-      border-radius: 12px; padding: 16px;
-    }
-    .whatif-result.show { display: block; }
+        .weather-loading {
+            font-size: 13px;
+            color: #81c784;
+            padding: 8px 0;
+        }
 
-    .whatif-numbers {
-      display: flex; align-items: center; gap: 16px; justify-content: center;
-      margin-bottom: 12px;
-    }
+        /* ── existing styles below ─────────────────────── */
+        .score-display {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
 
-    .wi-score {
-      text-align: center; padding: 12px 20px;
-      background: #1b2e1b; border-radius: 10px; flex: 1;
-    }
-    .wi-score .n { font-size: 28px; font-weight: 700; }
-    .wi-score .l { font-size: 11px; color: #81c784; text-transform: uppercase; }
-    .wi-arrow { font-size: 24px; color: #81c784; }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 4px solid #69f0ae;
+            flex-shrink: 0;
+            transition: border-color 0.5s;
+        }
 
-    .wi-message {
-      text-align: center; font-size: 13px;
-      color: #69f0ae; font-weight: 600; margin-top: 8px;
-    }
+        .score-circle .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: #69f0ae;
+            transition: color 0.5s;
+        }
 
-    /* Chart */
-    .chart-wrap { position: relative; height: 220px; margin-top: 8px; }
+        .score-circle .label {
+            font-size: 11px;
+            color: #81c784;
+        }
 
-    /* New Offset Box styling */
-    .offset-box { 
-    margin-top: 16px; 
-    padding: 12px; 
-    background: rgba(255, 183, 77, 0.1); 
-    border: 1px solid #ffb74d; 
-    border-radius: 8px; 
-    font-size: 13px; 
-    color: #ffb74d; 
-    display: none; 
-    }
-    .offset-box.show { display: block; }
-    .offset-box strong { color: #fff; }
-  </style>
+        .score-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .score-info p {
+            font-size: 13px;
+            color: #81c784;
+            line-height: 1.6;
+        }
+
+        .risk-low {
+            border-color: #69f0ae !important;
+        }
+
+        .risk-low .number {
+            color: #69f0ae !important;
+        }
+
+        .risk-medium {
+            border-color: #ffb74d !important;
+        }
+
+        .risk-medium .number {
+            color: #ffb74d !important;
+        }
+
+        .risk-high {
+            border-color: #ff5252 !important;
+        }
+
+        .risk-high .number {
+            color: #ff5252 !important;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #0f1a0f;
+            border: 1px solid #2e4a2e;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .event-item:hover {
+            border-color: #69f0ae;
+        }
+
+        .event-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #69f0ae;
+            cursor: pointer;
+        }
+
+        .event-item span {
+            font-size: 13px;
+            color: #e8f5e9;
+        }
+
+        /* NEW — weather checkbox row */
+        .weather-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(105, 240, 174, 0.06);
+            border: 1px solid #2e4a2e;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .weather-toggle-row input {
+            width: 18px;
+            height: 18px;
+            accent-color: #69f0ae;
+            cursor: pointer;
+        }
+
+        .weather-toggle-row span {
+            font-size: 13px;
+            color: #81c784;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #69f0ae;
+            color: #0f1a0f;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .result-box {
+            display: none;
+            margin-top: 16px;
+            background: #0f1a0f;
+            border: 1px solid #69f0ae;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .result-box.show {
+            display: block;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 6px 0;
+            border-bottom: 1px solid #2e4a2e;
+            color: #81c784;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-row span:last-child {
+            color: #ff5252;
+            font-weight: 600;
+        }
+
+        /* weather row inside breakdown gets amber color */
+        .result-row.weather-row span:last-child {
+            color: #ffb74d;
+        }
+
+        .result-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 12px;
+            color: #e8f5e9;
+        }
+
+        .result-total span:last-child {
+            color: #ff5252;
+        }
+
+        .whatif-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .whatif-control label {
+            display: block;
+            font-size: 12px;
+            color: #81c784;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .whatif-control input[type="range"] {
+            width: 100%;
+            accent-color: #69f0ae;
+            cursor: pointer;
+        }
+
+        .whatif-control .val {
+            font-size: 13px;
+            color: #69f0ae;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f1a0f;
+            border: 1px solid #2e4a2e;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+        }
+
+        .toggle-row span {
+            font-size: 13px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #2e4a2e;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle.on {
+            background: #69f0ae;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle.on::after {
+            transform: translateX(20px);
+        }
+
+        .whatif-result {
+            display: none;
+            margin-top: 16px;
+            background: #0f1a0f;
+            border: 1px solid #2e4a2e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .whatif-result.show {
+            display: block;
+        }
+
+        .whatif-numbers {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        .wi-score {
+            text-align: center;
+            padding: 12px 20px;
+            background: #1b2e1b;
+            border-radius: 10px;
+            flex: 1;
+        }
+
+        .wi-score .n {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .wi-score .l {
+            font-size: 11px;
+            color: #81c784;
+            text-transform: uppercase;
+        }
+
+        .wi-arrow {
+            font-size: 24px;
+            color: #81c784;
+        }
+
+        .wi-message {
+            text-align: center;
+            font-size: 13px;
+            color: #69f0ae;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 220px;
+            margin-top: 8px;
+        }
+
+        .offset-box {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(255, 183, 77, 0.1);
+            border: 1px solid #ffb74d;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #ffb74d;
+            display: none;
+        }
+
+        .offset-box.show {
+            display: block;
+        }
+
+        .offset-box strong {
+            color: #fff;
+        }
+        .alert-banner {
+        background: rgba(255,82,82,0.12);
+        border: 1px solid #ff5252;
+        color: #ff5252;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: none;
+        animation: fadeIn 0.6s ease;
+        }
+
+        .alert-banner.show {
+        display:block;
+        }
+
+        .ghost-box {
+        background: rgba(105,240,174,0.08);
+        border: 1px solid #69f0ae;
+        color: #69f0ae;
+        padding: 12px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        display: none;
+        font-size: 13px;
+        }
+
+        .ghost-box.show {
+            display:block;
+        }
+
+        .ghost-box.show {
+            display:block;
+        }
+
+        .ghost-box.show {
+    display:block;
+        }
+
+        @keyframes fadeIn {
+        from { opacity:0; transform:translateY(-6px);}
+        to { opacity:1; transform:translateY(0);}
+        }
+        .prediction-btn{
+        margin-top:10px;
+        }
+
+        .prediction-box{
+        display:none;
+        background:#0f1a0f;
+        border:1px solid #69f0ae;
+        border-radius:10px;
+        padding:12px;
+        margin-top:10px;
+        }
+
+        .prediction-box.show{
+        display:block;
+        }
+    </style>
 </head>
+
 <body>
 
-  <h1>🌿 GreenLedger</h1>
-  <p class="subtitle">Environmental Debt Tracker — College Campus</p>
-
-  <!-- Score Card -->
-  <div class="card">
-    <h2>Current Debt Score</h2>
-    <div class="score-display">
-      <div class="score-circle" id="score-circle">
-        <span class="number" id="current-score">38</span>
-        <span class="label">/ 100</span>
-      </div>
-      <div class="score-info">
-        <h3 id="risk-label">Low Risk</h3>
-        <p id="risk-desc">Campus is currently stable. Select active events below to calculate real-time debt impact.</p>
-      </div>
+    <h1>🌿 GreenLedger</h1>
+    <p class="subtitle">Environmental Debt Tracker — College Campus</p>
+    <!-- Alert Banner -->
+    <div id="alert-banner" class="alert-banner">
+    ⚠ Pollution spike predicted today due to events
     </div>
-  </div>
+    <div id="ghost-box" class="ghost-box"></div>
+    <!-- ── NEW: Weather Card ──────────────────────── -->
+    <div class="card">
+        <h2>🌤 Live Weather &amp; Air Quality</h2>
+        <div id="weather-loading" class="weather-loading">Fetching weather data...</div>
 
-  <!-- Event Selector -->
-  <div class="card">
-    <h2>Active Events / Conditions</h2>
-    <div class="events-grid">
-      <label class="event-item"><input type="checkbox" value="college_fest"> <span>🎪 College Fest</span></label>
-      <label class="event-item"><input type="checkbox" value="concert"> <span>🎵 Concert</span></label>
-      <label class="event-item"><input type="checkbox" value="traffic_high"> <span>🚗 Heavy Traffic</span></label>
-      <label class="event-item"><input type="checkbox" value="traffic_medium"> <span>🚙 Medium Traffic</span></label>
-      <label class="event-item"><input type="checkbox" value="generator_use"> <span>⚡ Generators</span></label>
-      <label class="event-item"><input type="checkbox" value="food_stalls"> <span>🍔 Food Stalls</span></label>
-      <label class="event-item"><input type="checkbox" value="construction"> <span>🏗️ Construction</span></label>
-      <label class="event-item"><input type="checkbox" value="holiday_weekend"> <span>📅 Holiday Weekend</span></label>
-    </div>
-    <button onclick="calculateDebt()">Calculate Debt Score</button>
-    <div class="result-box" id="result-box">
-      <div id="breakdown-list"></div>
-      <div class="result-total">
-        <span>New Debt Score</span>
-        <span id="result-score">—</span>
-      </div>
-    </div>
-  </div>
+        <div id="weather-content" style="display:none">
+            <div class="weather-grid">
+                <div class="weather-temp-block">
+                    <div class="weather-temp" id="w-temp">--</div>
+                    <div class="weather-desc" id="w-desc">--</div>
+                </div>
+                <div class="weather-stat">
+                    <div class="ws-val" id="w-aqi">--</div>
+                    <div class="ws-lbl">AQI Level</div>
+                </div>
+                <div class="weather-stat">
+                    <div class="ws-val" id="w-pm25">--</div>
+                    <div class="ws-lbl">PM2.5 μg/m³</div>
+                </div>
+                <div class="weather-stat">
+                    <div class="ws-val" id="w-humidity">--</div>
+                    <div class="ws-lbl">Humidity %</div>
+                </div>
+            </div>
 
-  <!-- What-If Simulator -->
-  <div class="card">
-    <h2>🔮 What-If Simulator</h2>
-    <p style="font-size:13px;color:#81c784;margin-bottom:16px;">See how green actions reduce environmental debt</p>
-
-    <div class="whatif-grid">
-      <div class="whatif-control">
-        <label>Students using bikes</label>
-        <input type="range" min="0" max="500" value="0" step="10"
-          oninput="document.getElementById('bike-val').textContent = this.value + ' students'">
-        <div class="val" id="bike-val">0 students</div>
-      </div>
-      <div class="whatif-control">
-        <label>Cars removed from campus</label>
-        <input type="range" min="0" max="200" value="0" step="5"
-          oninput="document.getElementById('car-val').textContent = this.value + ' cars'">
-        <div class="val" id="car-val">0 cars</div>
-      </div>
-    </div>
-
-    <div class="toggle-row">
-      <span>☀️ Solar panels active</span>
-      <div class="toggle" id="solar-toggle" onclick="this.classList.toggle('on')"></div>
-    </div>
-    <div class="toggle-row">
-      <span>♻️ Waste management active</span>
-      <div class="toggle" id="waste-toggle" onclick="this.classList.toggle('on')"></div>
-    </div>
-
-    <button onclick="runWhatIf()">Run Simulation</button>
-
-    <div class="whatif-result" id="whatif-result">
-      <div class="whatif-numbers">
-        <div class="wi-score">
-          <div class="n" id="wi-before" style="color:#ff5252">—</div>
-          <div class="l">Before</div>
+            <!-- Shows warning when AQI adds debt automatically -->
+            <div class="weather-debt-notice" id="w-debt-notice"></div>
         </div>
-        <div class="wi-arrow">→</div>
-        <div class="wi-score">
-          <div class="n" id="wi-after" style="color:#69f0ae">—</div>
-          <div class="l">After</div>
+
+        <div id="weather-error" style="display:none; font-size:13px; color:#ff5252;">
+            ⚠ Could not load weather. Check your API key in app.py and restart the server.
         </div>
-      </div>
-      <div class="wi-message" id="wi-message"></div>
     </div>
-  </div>
+    <!-- ── END Weather Card ───────────────────────── -->
 
-  <!-- Score History Chart -->
-  <div class="card">
-    <h2>📈 Debt Score History</h2>
-    <div class="chart-wrap">
-      <canvas id="historyChart"></canvas>
+    <!-- Score Card -->
+    <div class="card">
+        <h2>Current Debt Score</h2>
+        <div class="score-display">
+            <div class="score-circle" id="score-circle">
+                <span class="number" id="current-score">38</span>
+                <span class="label">/ 100</span>
+            </div>
+            <div class="score-info">
+                <h3 id="risk-label">Low Risk</h3>
+                <p id="risk-desc">Campus is currently stable. Select active events below to calculate real-time debt
+                    impact.</p>
+            </div>
+        </div>
     </div>
-  </div>
 
-  <script>
-    // --- Score history data (simulated week) ---
-    const historyLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const historyData   = [32, 35, 38, 38, 45, 62, 38];
+    <!-- Event Selector -->
+    <div class="card">
+        <h2>Active Events / Conditions</h2>
+        <div class="events-grid">
+            <label class="event-item"><input type="checkbox" value="college_fest"> <span>🎪 College Fest</span></label>
+            <label class="event-item"><input type="checkbox" value="concert"> <span>🎵 Concert</span></label>
+            <label class="event-item"><input type="checkbox" value="traffic_high"> <span>🚗 Heavy Traffic</span></label>
+            <label class="event-item"><input type="checkbox" value="traffic_medium"> <span>🚙 Medium
+                    Traffic</span></label>
+            <label class="event-item"><input type="checkbox" value="generator_use"> <span>⚡ Generators</span></label>
+            <label class="event-item"><input type="checkbox" value="food_stalls"> <span>🍔 Food Stalls</span></label>
+            <label class="event-item"><input type="checkbox" value="construction"> <span>🏗️ Construction</span></label>
+            <label class="event-item"><input type="checkbox" value="holiday_weekend"> <span>📅 Holiday
+                    Weekend</span></label>
+        </div>
 
-    const ctx = document.getElementById('historyChart').getContext('2d');
-    const historyChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: historyLabels,
-        datasets: [{
-          label: 'Debt Score',
-          data: historyData,
-          borderColor: '#69f0ae',
-          backgroundColor: 'rgba(105,240,174,0.08)',
-          pointBackgroundColor: '#69f0ae',
-          pointRadius: 5,
-          fill: true,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { ticks: { color: '#81c784' }, grid: { color: '#1b2e1b' } },
-          y: {
-            min: 0, max: 100,
-            ticks: { color: '#81c784' },
-            grid: { color: '#2e4a2e' }
-          }
-        }
-      }
-    });
+        <!-- NEW — weather checkbox to include AQI in score -->
+        <label class="weather-toggle-row">
+            <input type="checkbox" id="include-weather-cb" checked>
+            <span>🌤 Include live Air Quality (AQI) in debt calculation</span>
+        </label>
 
-    // --- Risk level helper ---
-    function updateRiskDisplay(score) {
-      const circle = document.getElementById('score-circle');
-      const label  = document.getElementById('risk-label');
-      const desc   = document.getElementById('risk-desc');
-      document.getElementById('current-score').textContent = score;
-      circle.className = 'score-circle';
-      if (score < 45) {
-        circle.classList.add('risk-low');
-        label.textContent = 'Low Risk';
-        desc.textContent = 'Campus is in good shape. Keep monitoring active events.';
-      } else if (score < 70) {
-        circle.classList.add('risk-medium');
-        label.textContent = 'Moderate Risk';
-        desc.textContent = 'Environmental debt is building. Consider green interventions.';
-      } else {
-        circle.classList.add('risk-high');
-        label.textContent = 'High Risk ⚠️';
-        desc.textContent = 'Critical debt level! Immediate action recommended.';
-      }
-    }
+        <button onclick="calculateDebt()">Calculate Debt Score</button>
+        <div id="prediction-section" style="margin-top:10px;">
+            <strong>🔮 Future Prediction:</strong>
+            <div id="prediction-text">No prediction yet</div>
+        </div>
 
-    // --- Calculate debt ---
-    let lastCalculatedScore = 38;
+        <button onclick="togglePrediction()" class="prediction-btn">
+        🔮 Show Future Prediction
+        </button>
 
-    async function calculateDebt() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-      const events = Array.from(checkboxes).map(cb => cb.value);
-      if (events.length === 0) { alert("Select at least one event."); return; }
+        <div id="prediction-box" class="prediction-box">
+        <p id="prediction-text">No prediction yet</p>
+        </div>
 
-      try {
-        const res  = await fetch('http://127.0.0.1:5000/api/calculate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ events })
+        <div class="result-box" id="result-box">
+            <div id="breakdown-list"></div>
+            <div class="result-total">
+                <span>New Debt Score</span>
+                <span id="result-score">—</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- What-If Simulator -->
+    <div class="card">
+        <h2>🔮 What-If Simulator</h2>
+        <p style="font-size:13px;color:#81c784;margin-bottom:16px;">See how green actions reduce environmental debt</p>
+
+        <div class="whatif-grid">
+            <div class="whatif-control">
+                <label>Students using bikes</label>
+                <input type="range" min="0" max="500" value="0" step="10"
+                    oninput="document.getElementById('bike-val').textContent = this.value + ' students'">
+                <div class="val" id="bike-val">0 students</div>
+            </div>
+            <div class="whatif-control">
+                <label>Cars removed from campus</label>
+                <input type="range" min="0" max="200" value="0" step="5"
+                    oninput="document.getElementById('car-val').textContent = this.value + ' cars'">
+                <div class="val" id="car-val">0 cars</div>
+            </div>
+        </div>
+
+        <div class="toggle-row">
+            <span>☀️ Solar panels active</span>
+            <div class="toggle" id="solar-toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="toggle-row">
+            <span>♻️ Waste management active</span>
+            <div class="toggle" id="waste-toggle" onclick="this.classList.toggle('on')"></div>
+        </div>
+
+        <button onclick="runWhatIf()">Run Simulation</button>
+
+        <div class="whatif-result" id="whatif-result">
+            <div class="whatif-numbers">
+                <div class="wi-score">
+                    <div class="n" id="wi-before" style="color:#ff5252">—</div>
+                    <div class="l">Before</div>
+                </div>
+                <div class="wi-arrow">→</div>
+                <div class="wi-score">
+                    <div class="n" id="wi-after" style="color:#69f0ae">—</div>
+                    <div class="l">After</div>
+                </div>
+            </div>
+            <div class="wi-message" id="wi-message"></div>
+        </div>
+    </div>
+
+    <!-- Score History Chart -->
+    <div class="card">
+        <h2>📈 Debt Score History</h2>
+        <div class="chart-wrap">
+            <canvas id="historyChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>🔮 Future Pollution Prediction</h2>
+        <div id="prediction-box">
+            <p id="prediction-text">No prediction yet</p>
+        </div>
+    </div>
+
+    <script>
+        // ── Score history data (simulated week) ──
+        const historyLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const historyData = [32, 35, 38, 38, 45, 62, 38];
+
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const historyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: historyLabels,
+                datasets: [{
+                    label: 'Debt Score',
+                    data: historyData,
+                    borderColor: '#69f0ae',
+                    backgroundColor: 'rgba(105,240,174,0.08)',
+                    pointBackgroundColor: '#69f0ae',
+                    pointRadius: 5,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#81c784' }, grid: { color: '#1b2e1b' } },
+                    y: { min: 0, max: 100, ticks: { color: '#81c784' }, grid: { color: '#2e4a2e' } }
+                }
+            }
         });
-        const data = await res.json();
-        lastCalculatedScore = data.new_score;
 
-        updateRiskDisplay(data.new_score);
+        // ── Risk level helper ──
+        function updateRiskDisplay(score) {
+            const circle = document.getElementById('score-circle');
+            const label = document.getElementById('risk-label');
+            const desc = document.getElementById('risk-desc');
+            document.getElementById('current-score').textContent = score;
+            circle.className = 'score-circle';
+            if (score < 45) {
+                circle.classList.add('risk-low');
+                label.textContent = 'Low Risk';
+                desc.textContent = 'Campus is in good shape. Keep monitoring active events.';
+            } else if (score < 70) {
+                circle.classList.add('risk-medium');
+                label.textContent = 'Moderate Risk';
+                desc.textContent = 'Environmental debt is building. Consider green interventions.';
+            } else {
+                circle.classList.add('risk-high');
+                label.textContent = 'High Risk ⚠️';
+                desc.textContent = 'Critical debt level! Immediate action recommended.';
+            }
+        }
 
-        // Add to chart
-        const today = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        historyChart.data.labels.push(today);
-        historyChart.data.datasets[0].data.push(data.new_score);
-        historyChart.update();
+        // ─────────────────────────────────────────────────
+        // NEW — Load weather on page startup
+        // ─────────────────────────────────────────────────
+        async function loadWeather() {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/weather');
+                const data = await res.json();
 
-        // Breakdown
-        let html = '';
-        data.breakdown.forEach(item => {
-          html += `<div class="result-row">
-            <span>${item.event.replace(/_/g, ' ')}</span>
+                if (data.status === 'error') {
+                    document.getElementById('weather-loading').style.display = 'none';
+                    document.getElementById('weather-error').style.display = 'block';
+                    return;
+                }
+
+                // Populate the weather card
+                document.getElementById('w-temp').textContent = data.temp + '°C';
+                document.getElementById('w-desc').textContent = data.description;
+                document.getElementById('w-humidity').textContent = data.humidity + '%';
+                document.getElementById('w-pm25').textContent = data.pm2_5;
+
+                // AQI label with color class
+                const aqiEl = document.getElementById('w-aqi');
+                const aqiClass = {
+                    'Good': 'aqi-good',
+                    'Fair': 'aqi-fair',
+                    'Moderate': 'aqi-moderate',
+                    'Poor': 'aqi-poor',
+                    'Very Poor': 'aqi-verypoor',
+                }[data.aqi_label] || '';
+                aqiEl.textContent = data.aqi_label;
+                aqiEl.className = 'ws-val ' + aqiClass;
+
+                // Show debt notice if AQI is adding to score
+                if (data.weather_debt > 0) {
+                    const notice = document.getElementById('w-debt-notice');
+                    notice.textContent = `⚠ Current AQI (${data.aqi_label}) is automatically adding +${data.weather_debt} debt points to your score.`;
+                    notice.classList.add('show');
+                    notice.classList.add(data.aqi >= 4 ? 'danger' : 'warn');
+                }
+
+                document.getElementById('weather-loading').style.display = 'none';
+                document.getElementById('weather-content').style.display = 'block';
+
+            } catch (e) {
+                document.getElementById('weather-loading').style.display = 'none';
+                document.getElementById('weather-error').style.display = 'block';
+            }
+        }
+
+        // Call on page load
+        loadWeather();
+        // ─────────────────────────────────────────────────
+        function showAlert(message){
+        const banner = document.getElementById("alert-banner");
+        banner.textContent = message;
+        banner.classList.add("show");
+        }
+        let lastCalculatedScore = 38;
+
+        function detectGhostPollution(events){
+
+        let ghostEvents = [];
+
+        if(events.includes("college_fest")){
+            ghostEvents.push("traffic_high");
+            ghostEvents.push("food_stalls");
+            ghostEvents.push("generator_use");
+        }
+
+        if(events.includes("concert")){
+            ghostEvents.push("traffic_high");
+            ghostEvents.push("food_stalls");
+        }
+
+        if(events.includes("holiday_weekend")){
+        ghostEvents.push("traffic_medium");
+        }
+
+        return [...new Set(ghostEvents)];
+        }
+        function showGhostEvents(ghost){
+
+        const box = document.getElementById("ghost-box");
+
+        let html = "👻 Ghost Pollution Detected:<br>";
+
+        ghost.forEach(event => {
+            html += "• " + event.replace("_", " ") + "<br>";
+        });
+
+        box.innerHTML = html;
+        box.classList.add("show");
+    }
+        function predictFuture(events){
+
+            let risk = "Low";
+
+            if(events.includes("college_fest")){
+                risk = "Moderate";
+            }
+
+            if(events.includes("traffic_high")){
+                risk = "High";
+            }
+
+            document.getElementById("prediction-text").innerHTML =
+            "Tomorrow Risk: " + risk;
+    }
+        async function calculateDebt() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const events = Array.from(checkboxes)
+                .map(cb => cb.value)
+                .filter(v => v !== 'on');   // exclude the weather checkbox itself
+            const ghost = detectGhostPollution(events);
+            events.push(...ghost);
+            predictFuture(events);
+            if(ghost.length > 0){
+                showAlert("👻 Ghost pollution detected automatically");
+                showGhostEvents(ghost);
+            }
+            const includeWeather = document.getElementById('include-weather-cb').checked;
+
+            if (events.length === 0) { alert("Select at least one event."); return; }
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // NEW — send include_weather flag to backend
+                    body: JSON.stringify({ events, include_weather: includeWeather })
+                });
+                const data = await res.json();
+                lastCalculatedScore = data.new_score;
+
+                updateRiskDisplay(data.new_score);
+                if(data.new_score > 70){
+                    showAlert("⚠ High pollution risk detected today");
+                }   
+
+                // Add to chart
+                const today = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                historyChart.data.labels.push(today);
+                historyChart.data.datasets[0].data.push(data.new_score);
+                historyChart.update();
+
+                // Build breakdown list — weather row gets amber color
+                let html = '';
+                data.breakdown.forEach(item => {
+                    const isWeather = item.event.toLowerCase().includes('air quality');
+                    html += `<div class="result-row ${isWeather ? 'weather-row' : ''}">
+        <span>${item.event}</span>
             <span>+${item.impact}</span>
           </div>`;
-        });
-        document.getElementById('breakdown-list').innerHTML = html;
-        document.getElementById('result-score').textContent = data.new_score + ' / 100';
-        document.getElementById('result-box').classList.add('show');
+                });
+                document.getElementById('breakdown-list').innerHTML = html;
+                document.getElementById('result-score').textContent = data.new_score + ' / 100';
+                document.getElementById('result-box').classList.add('show');
 
-      } catch (e) {
-        alert("Cannot connect to backend. Is the server running?");
-      }
-    }
+            } catch (e) {
+                alert("Cannot connect to backend. Is the server running?");
+            }
+        }
 
-    // --- What-If simulator ---
-    async function runWhatIf() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-      const events = Array.from(checkboxes).map(cb => cb.value);
-      if (events.length === 0) { alert("Select some events first, then run the simulator."); return; }
+        async function runWhatIf() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            const events = Array.from(checkboxes)
+                .map(cb => cb.value)
+                .filter(v => v !== 'on');
 
-      const bikes  = parseInt(document.querySelector('input[type=range]').value);
-      const cars   = parseInt(document.querySelectorAll('input[type=range]')[1].value);
-      const solar  = document.getElementById('solar-toggle').classList.contains('on');
-      const waste  = document.getElementById('waste-toggle').classList.contains('on');
+            if (events.length === 0) { alert("Select some events first, then run the simulator."); return; }
 
-      try {
-        const res  = await fetch('http://127.0.0.1:5000/api/whatif', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ events, bikes, solar })
-        });
-        const data = await res.json();
+            const bikes = parseInt(document.querySelectorAll('input[type=range]')[0].value);
+            const cars = parseInt(document.querySelectorAll('input[type=range]')[1].value);
+            const solar = document.getElementById('solar-toggle').classList.contains('on');
+            const waste = document.getElementById('waste-toggle').classList.contains('on');
 
-        // Extra local reduction for cars + waste
-        let extra = 0;
-        if (cars > 0) extra += Math.round((cars / 50) * 5);
-        if (waste)   extra += 6;
-        const finalAfter = Math.max(data.after - extra, 0);
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/whatif', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ events, bikes, cars, solar, waste })
+                });
+                const data = await res.json();
 
-        document.getElementById('wi-before').textContent = data.before;
-        document.getElementById('wi-after').textContent  = finalAfter;
-        document.getElementById('wi-message').textContent = `✅ Green actions reduced debt by ${data.before - finalAfter} points`;
-        document.getElementById('whatif-result').classList.add('show');
+                document.getElementById('wi-before').textContent = data.before;
+                document.getElementById('wi-after').textContent = data.after;
+                document.getElementById('wi-message').textContent = `✅ Green actions reduced debt by ${data.before - data.after} points`;
+                document.getElementById('whatif-result').classList.add('show');
 
-      } catch (e) {
-        alert("Cannot connect to backend.");
-      }
-    }
-  </script>
+            } catch (e) {
+                alert("Cannot connect to backend.");
+            }
+        }
+    </script>
 
 </body>
+
 </html>
