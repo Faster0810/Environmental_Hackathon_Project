@@ -167,6 +167,7 @@ def calculate_debt(events: list, include_weather: bool = False) -> dict:
 # --- ROUTE 1: Get current base score ---
 @app.route('/api/score', methods=['GET'])
 def get_score():
+    base_score = 38
     return jsonify({
         "location":      "College Campus",
         "current_score": base_score,
