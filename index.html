@@ -14,13 +14,14 @@
 <body>
 
     <h1>🌿 GreenLedger</h1>
-    <p class="subtitle">Environmental Debt Tracker — College Campus</p>
+    <p class="subtitle">Comprehensive Environmental Tracking Dashboard</p>
     <!-- Alert Banner -->
     <div id="alert-banner" class="alert-banner">
     ⚠ Pollution spike predicted today due to events
     </div>
     <div id="ghost-box" class="ghost-box"></div>
-    <!-- ── NEW: Weather Card ──────────────────────── -->
+    
+    <!-- ── Weather Card ──────────────────────── -->
     <div class="card">
         <h2>🌤 Live Weather &amp; Air Quality</h2>
         <div id="weather-loading" class="weather-loading">Fetching weather data...</div>
@@ -55,18 +56,48 @@
     </div>
     <!-- ── END Weather Card ───────────────────────── -->
 
-    <!-- Score Card -->
+    <!-- Campus Resource Tracking -->
     <div class="card">
-        <h2>Current Debt Score</h2>
+        <h2>💧 Campus Resource Tracking</h2>
+        <p style="font-size:13px;color:#81c784;margin-bottom:16px;">Monitor daily resource usage vs ideal baseline</p>
+        <div class="resource-grid">
+            <div class="r-sliders">
+                <div class="whatif-control">
+                    <label>Water Usage (Liters)</label>
+                    <input type="range" id="water-range" min="1000" max="10000" value="5000" step="500" oninput="updateResources()">
+                    <div class="val" id="water-val">5000 L</div>
+                </div>
+                <div class="whatif-control">
+                    <label>Electricity (kWh)</label>
+                    <input type="range" id="energy-range" min="500" max="5000" value="2500" step="100" oninput="updateResources()">
+                    <div class="val" id="energy-val">2500 kWh</div>
+                </div>
+                <div class="whatif-control">
+                    <label>Solid Waste (kg)</label>
+                    <input type="range" id="waste-range" min="100" max="2000" value="800" step="50" oninput="updateResources()">
+                    <div class="val" id="waste-val">800 kg</div>
+                </div>
+            </div>
+            <div class="r-chart">
+                <canvas id="resourceChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Card with Pie Chart -->
+    <div class="card">
+        <h2>Current Environmental Debt Score</h2>
         <div class="score-display">
             <div class="score-circle" id="score-circle">
                 <span class="number" id="current-score">38</span>
                 <span class="label">/ 100</span>
             </div>
-            <div class="score-info">
+            <div class="score-info" style="flex: 1;">
                 <h3 id="risk-label">Low Risk</h3>
-                <p id="risk-desc">Campus is currently stable. Select active events below to calculate real-time debt
-                    impact.</p>
+                <p id="risk-desc">Campus is currently stable. See the breakdown of the score impacts on the right.</p>
+            </div>
+            <div class="pie-chart-wrap" style="width: 200px; height: 200px; position:relative;">
+                <canvas id="ecoPieChart"></canvas>
             </div>
         </div>
     </div>
@@ -78,34 +109,19 @@
             <label class="event-item"><input type="checkbox" value="college_fest"> <span>🎪 College Fest</span></label>
             <label class="event-item"><input type="checkbox" value="concert"> <span>🎵 Concert</span></label>
             <label class="event-item"><input type="checkbox" value="traffic_high"> <span>🚗 Heavy Traffic</span></label>
-            <label class="event-item"><input type="checkbox" value="traffic_medium"> <span>🚙 Medium
-                    Traffic</span></label>
+            <label class="event-item"><input type="checkbox" value="traffic_medium"> <span>🚙 Medium Traffic</span></label>
             <label class="event-item"><input type="checkbox" value="generator_use"> <span>⚡ Generators</span></label>
             <label class="event-item"><input type="checkbox" value="food_stalls"> <span>🍔 Food Stalls</span></label>
             <label class="event-item"><input type="checkbox" value="construction"> <span>🏗️ Construction</span></label>
-            <label class="event-item"><input type="checkbox" value="holiday_weekend"> <span>📅 Holiday
-                    Weekend</span></label>
+            <label class="event-item"><input type="checkbox" value="holiday_weekend"> <span>📅 Holiday Weekend</span></label>
         </div>
 
-        <!-- NEW — weather checkbox to include AQI in score -->
         <label class="weather-toggle-row">
             <input type="checkbox" id="include-weather-cb" checked>
             <span>🌤 Include live Air Quality (AQI) in debt calculation</span>
         </label>
 
         <button onclick="calculateDebt()">Calculate Debt Score</button>
-        <div id="prediction-section" style="margin-top:10px;">
-            <strong>🔮 Future Prediction:</strong>
-            <div id="prediction-text">No prediction yet</div>
-        </div>
-
-        <button onclick="togglePrediction()" class="prediction-btn">
-        🔮 Show Future Prediction
-        </button>
-
-        <div id="prediction-box" class="prediction-box">
-        <p id="prediction-text">No prediction yet</p>
-        </div>
 
         <div class="result-box" id="result-box">
             <div id="breakdown-list"></div>
@@ -120,10 +136,35 @@
         </div>
     </div>
 
+    <!-- Community Incident Board -->
+    <div class="card">
+        <h2>🚨 Community Incident Reporting</h2>
+        <p style="font-size:13px;color:#81c784;margin-bottom:16px;">Unresolved issues actively increase the campus waste/energy debt.</p>
+        
+        <div class="incident-board">
+            <div class="incident-form">
+                <input type="text" id="incident-desc" placeholder="Describe issue (e.g., Leaking pipe in Bldg A)" class="incident-input" />
+                <select id="incident-type" class="incident-input">
+                    <option value="water">Water Leak</option>
+                    <option value="waste">Uncollected Waste</option>
+                    <option value="energy">Energy Wastage</option>
+                </select>
+                <button onclick="addIncident()" style="margin-top: 10px; padding: 12px;">Submit Report</button>
+            </div>
+            <div class="incident-list" id="incident-list">
+                <div class="incident-item">
+                    <span>💧 Leaking pipe in Bldg A</span>
+                    <button class="resolve-btn" onclick="resolveIncident(this)">Resolve</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- What-If Simulator -->
     <div class="card">
         <h2>🔮 What-If Simulator</h2>
-        <p style="font-size:13px;color:#81c784;margin-bottom:16px;">See how green actions reduce environmental debt</p>
+        <p style="font-size:13px;color:#81c784;margin-bottom:16px;">See how green actions reduce environmental debt visually</p>
 
         <div class="whatif-grid">
             <div class="whatif-control">
@@ -167,65 +208,147 @@
         </div>
     </div>
 
-    <!-- Score History Chart -->
+    <!-- Advanced Forecaster -->
     <div class="card">
-        <h2>📈 Debt Score History</h2>
-        <div class="chart-wrap">
-            <canvas id="historyChart"></canvas>
-        </div>
-    </div>
-
-    <div class="card">
-        <h2>🔮 Future Pollution Prediction</h2>
-        <div id="prediction-box">
-            <p id="prediction-text">No prediction yet</p>
+        <h2>🌦️ 7-Day Climate & Risk Forecaster</h2>
+        <div class="chart-wrap" style="height: 320px;">
+            <canvas id="forecastChart"></canvas>
         </div>
     </div>
 
     <script>
-        // ── Score history data (simulated week) ──
-        const historyLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        const historyData = [32, 35, 38, 38, 45, 62, 38];
+        // ── Charts Setup ──
+        let resourceChart, ecoPieChart, forecastChart;
 
-        const ctx = document.getElementById('historyChart').getContext('2d');
-        const historyChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: historyLabels,
-                datasets: [{
-                    label: 'Debt Score',
-                    data: historyData,
-                    borderColor: '#69f0ae',
-                    backgroundColor: 'rgba(105,240,174,0.08)',
-                    pointBackgroundColor: '#69f0ae',
-                    pointRadius: 5,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { ticks: { color: '#81c784' }, grid: { color: '#1b2e1b' } },
-                    y: { min: 0, max: 100, ticks: { color: '#81c784' }, grid: { color: '#2e4a2e' } }
+        function initCharts() {
+            // Resource Bar Chart
+            const ctxRes = document.getElementById('resourceChart').getContext('2d');
+            resourceChart = new Chart(ctxRes, {
+                type: 'bar',
+                data: {
+                    labels: ['Water', 'Energy', 'Waste'],
+                    datasets: [
+                        { label: 'Current Usage', data: [5000, 2500, 800], backgroundColor: 'rgba(105, 240, 174, 0.8)', borderColor: '#69f0ae', borderWidth: 1 },
+                        { label: 'Eco Baseline', data: [4000, 2000, 500], backgroundColor: 'rgba(255, 183, 77, 0.5)', borderColor: '#ffb74d', borderWidth: 1 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { ticks: { color: '#81c784' }, grid: { color: '#2e4a2e' } }, x: { ticks: { color: '#81c784' }, grid: { display: false } } }, plugins: { legend: { labels: { color: '#e8f5e9' } } } }
+            });
+
+            // Eco-Score Pie Chart
+            const ctxPie = document.getElementById('ecoPieChart').getContext('2d');
+            ecoPieChart = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Air/Traffic', 'Water', 'Electricity', 'Solid Waste'],
+                    datasets: [{ data: [40, 20, 25, 15], backgroundColor: ['#ffb74d', '#4fc3f7', '#ffca28', '#81c784'], borderWidth: 0, hoverOffset: 4 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // Forecast Line Chart (Multi-axis)
+            const ctxFor = document.getElementById('forecastChart').getContext('2d');
+            forecastChart = new Chart(ctxFor, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [
+                        { label: 'Predicted AQI', data: [65, 70, 120, 160, 90, 80, 60], borderColor: '#ff5252', backgroundColor: 'rgba(255, 82, 82, 0.1)', yAxisID: 'y', fill: true, tension: 0.4 },
+                        { label: 'Expected Temp (°C)', data: [28, 29, 32, 34, 30, 27, 26], borderColor: '#ffca28', yAxisID: 'y1', fill: false, tension: 0.4, borderDash: [5, 5] }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', ticks: { color: '#ff5252' }, grid: { color: '#2e4a2e' } },
+                        y1: { type: 'linear', display: true, position: 'right', ticks: { color: '#ffca28' }, grid: { display: false } },
+                        x: { ticks: { color: '#81c784' }, grid: { color: '#1b2e1b' } }
+                    },
+                    plugins: { legend: { labels: { color: '#e8f5e9' } } }
                 }
-            }
-        });
+            });
+        }
 
-        // ── Risk level helper ──
+        window.onload = () => {
+            initCharts();
+            loadWeather();
+        };
+
+        // ── New Features Logic ──
+
+        function updateResources() {
+            const w = document.getElementById('water-range').value;
+            const e = document.getElementById('energy-range').value;
+            const s = document.getElementById('waste-range').value;
+            document.getElementById('water-val').textContent = w + ' L';
+            document.getElementById('energy-val').textContent = e + ' kWh';
+            document.getElementById('waste-val').textContent = s + ' kg';
+            
+            if (resourceChart) {
+                resourceChart.data.datasets[0].data = [w, e, s];
+                resourceChart.update();
+            }
+            updateMockEcoPie();
+        }
+
+        let activeIncidents = 1;
+        function addIncident() {
+            const desc = document.getElementById('incident-desc').value;
+            if(!desc) return;
+            const type = document.getElementById('incident-type').value;
+            const icon = type === 'water' ? '💧' : type === 'waste' ? '🗑️' : '⚡';
+            
+            const list = document.getElementById('incident-list');
+            const div = document.createElement('div');
+            div.className = 'incident-item';
+            div.innerHTML = `<span>${icon} ${desc}</span> <button class="resolve-btn" onclick="resolveIncident(this)">Resolve</button>`;
+            list.appendChild(div);
+            
+            document.getElementById('incident-desc').value = '';
+            activeIncidents++;
+            showAlert("Incident added! Campus debt score negatively impacted.");
+            updateMockEcoPie();
+        }
+
+        function resolveIncident(btn) {
+            btn.parentElement.remove();
+            activeIncidents--;
+            showAlert("Issue resolved! Debt score improved.");
+            updateMockEcoPie();
+        }
+
+        function updateMockEcoPie(simulateGreen = false) {
+            if(!ecoPieChart) return;
+            const w = parseInt(document.getElementById('water-range').value) / 500;
+            const e = parseInt(document.getElementById('energy-range').value) / 100;
+            
+            let wasteImpact = 15 + (activeIncidents * 5); 
+            let energyImpact = 25 + e;
+            let airImpact = 40;
+            
+            if(simulateGreen) {
+                wasteImpact = document.getElementById('waste-toggle').classList.contains('on') ? wasteImpact - 10 : wasteImpact;
+                energyImpact = document.getElementById('solar-toggle').classList.contains('on') ? energyImpact - 15 : energyImpact;
+                airImpact = airImpact - (parseInt(document.querySelectorAll('input[type=range]')[3].value) / 20); // bikes
+            }
+
+            ecoPieChart.data.datasets[0].data = [Math.max(5, airImpact), Math.max(5, w), Math.max(5, energyImpact), Math.max(5, wasteImpact)];
+            ecoPieChart.update();
+        }
+
+        // ── Existing Helper Logic ──
+
         function updateRiskDisplay(score) {
             const circle = document.getElementById('score-circle');
             const label = document.getElementById('risk-label');
             const desc = document.getElementById('risk-desc');
             document.getElementById('current-score').textContent = score;
             circle.className = 'score-circle';
-            if (score < 45) {
+            if (score <= 45) {
                 circle.classList.add('risk-low');
                 label.textContent = 'Low Risk';
                 desc.textContent = 'Campus is in good shape. Keep monitoring active events.';
-            } else if (score < 70) {
+            } else if (score <= 70) {
                 circle.classList.add('risk-medium');
                 label.textContent = 'Moderate Risk';
                 desc.textContent = 'Environmental debt is building. Consider green interventions.';
@@ -236,12 +359,17 @@
             }
         }
 
-        // ─────────────────────────────────────────────────
-        // NEW — Load weather on page startup
-        // ─────────────────────────────────────────────────
+        function showAlert(message){
+            const banner = document.getElementById("alert-banner");
+            banner.textContent = message;
+            banner.classList.add("show");
+            setTimeout(() => banner.classList.remove("show"), 4000);
+        }
+
+        // ── Existing Backend Calls ──
         async function loadWeather() {
             try {
-                const res = await fetch('http://127.0.0.1:5000/api/weather');
+                const res = await fetch('/api/weather');
                 const data = await res.json();
 
                 if (data.status === 'error') {
@@ -250,25 +378,16 @@
                     return;
                 }
 
-                // Populate the weather card
                 document.getElementById('w-temp').textContent = data.temp + '°C';
                 document.getElementById('w-desc').textContent = data.description;
                 document.getElementById('w-humidity').textContent = data.humidity + '%';
                 document.getElementById('w-pm25').textContent = data.pm2_5;
 
-                // AQI label with color class
                 const aqiEl = document.getElementById('w-aqi');
-                const aqiClass = {
-                    'Good': 'aqi-good',
-                    'Fair': 'aqi-fair',
-                    'Moderate': 'aqi-moderate',
-                    'Poor': 'aqi-poor',
-                    'Very Poor': 'aqi-verypoor',
-                }[data.aqi_label] || '';
+                const aqiClass = { 'Good': 'aqi-good', 'Fair': 'aqi-fair', 'Moderate': 'aqi-moderate', 'Poor': 'aqi-poor', 'Very Poor': 'aqi-verypoor' }[data.aqi_label] || '';
                 aqiEl.textContent = data.aqi_label;
                 aqiEl.className = 'ws-val ' + aqiClass;
 
-                // Show debt notice if AQI is adding to score
                 if (data.weather_debt > 0) {
                     const notice = document.getElementById('w-debt-notice');
                     notice.textContent = `⚠ Current AQI (${data.aqi_label}) is automatically adding +${data.weather_debt} debt points to your score.`;
@@ -285,116 +404,41 @@
             }
         }
 
-        // Call on page load
-        loadWeather();
-        // ─────────────────────────────────────────────────
-        function showAlert(message){
-        const banner = document.getElementById("alert-banner");
-        banner.textContent = message;
-        banner.classList.add("show");
-        }
-        let lastCalculatedScore = 38;
-
-        function detectGhostPollution(events){
-
-        let ghostEvents = [];
-
-        if(events.includes("college_fest")){
-            ghostEvents.push("traffic_high");
-            ghostEvents.push("food_stalls");
-            ghostEvents.push("generator_use");
-        }
-
-        if(events.includes("concert")){
-            ghostEvents.push("traffic_high");
-            ghostEvents.push("food_stalls");
-        }
-
-        if(events.includes("holiday_weekend")){
-        ghostEvents.push("traffic_medium");
-        }
-
-        return [...new Set(ghostEvents)];
-        }
-        function showGhostEvents(ghost){
-
-        const box = document.getElementById("ghost-box");
-
-        let html = "👻 Ghost Pollution Detected:<br>";
-
-        ghost.forEach(event => {
-            html += "• " + event.replace("_", " ") + "<br>";
-        });
-
-        box.innerHTML = html;
-        box.classList.add("show");
-    }
-        function predictFuture(events){
-
-            let risk = "Low";
-
-            if(events.includes("college_fest")){
-                risk = "Moderate";
-            }
-
-            if(events.includes("traffic_high")){
-                risk = "High";
-            }
-
-            document.getElementById("prediction-text").innerHTML =
-            "Tomorrow Risk: " + risk;
-    }
         async function calculateDebt() {
             const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            const events = Array.from(checkboxes)
-                .map(cb => cb.value)
-                .filter(v => v !== 'on');   // exclude the weather checkbox itself
-            const ghost = detectGhostPollution(events);
-            events.push(...ghost);
-            predictFuture(events);
-            if(ghost.length > 0){
-                showAlert("👻 Ghost pollution detected automatically");
-                showGhostEvents(ghost);
-            }
+            const events = Array.from(checkboxes).map(cb => cb.value).filter(v => v !== 'on');
             const includeWeather = document.getElementById('include-weather-cb').checked;
 
-            if (events.length === 0) { alert("Select at least one event."); return; }
+            if (events.length === 0 && !includeWeather) { alert("Select at least one event."); return; }
 
             try {
-                const res = await fetch('http://127.0.0.1:5000/api/calculate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // NEW — send include_weather flag to backend
+                // If backend is running, use it. But since this is UI-centric, we might want to fallback if not mock it.
+                // We will try fetch, if fail, just gracefully fail as original did.
+                const res = await fetch('/api/calculate', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ events, include_weather: includeWeather })
                 });
                 const data = await res.json();
-                lastCalculatedScore = data.new_score;
+                
+                // Add incident active score modifier
+                let finalScore = data.new_score + (activeIncidents * 5);
+                updateRiskDisplay(finalScore);
+                
+                if(finalScore > 70) showAlert("⚠ High pollution risk detected today");
+                updateMockEcoPie();
 
-                updateRiskDisplay(data.new_score);
-                if(data.new_score > 70){
-                    showAlert("⚠ High pollution risk detected today");
-                }   
-
-                // Add to chart
-                const today = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                historyChart.data.labels.push(today);
-                historyChart.data.datasets[0].data.push(data.new_score);
-                historyChart.update();
-
-                // Build breakdown list — weather row gets amber color
                 let html = '';
                 data.breakdown.forEach(item => {
                     const isWeather = item.event.toLowerCase().includes('air quality');
-                    html += `<div class="result-row ${isWeather ? 'weather-row' : ''}">
-        <span>${item.event}</span>
-            <span>+${item.impact}</span>
-          </div>`;
+                    html += `<div class="result-row ${isWeather ? 'weather-row' : ''}"><span>${item.event}</span><span>+${item.impact}</span></div>`;
                 });
-                document.getElementById('breakdown-list').innerHTML = html;
-                document.getElementById('result-score').textContent = data.new_score + ' / 100';
-                if (data.apt_living) {
-                    document.getElementById('apt-living').textContent = data.apt_living.join(', ');
+                if(activeIncidents > 0) {
+                    html += `<div class="result-row"><span>Active Incidents</span><span>+${activeIncidents * 5}</span></div>`;
                 }
+
+                document.getElementById('breakdown-list').innerHTML = html;
+                document.getElementById('result-score').textContent = finalScore + ' / 100';
+                if (data.apt_living) document.getElementById('apt-living').textContent = data.apt_living.join(', ');
                 document.getElementById('result-box').classList.add('show');
 
             } catch (e) {
@@ -404,28 +448,28 @@
 
         async function runWhatIf() {
             const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
-            const events = Array.from(checkboxes)
-                .map(cb => cb.value)
-                .filter(v => v !== 'on');
-
-            if (events.length === 0) { alert("Select some events first, then run the simulator."); return; }
-
-            const bikes = parseInt(document.querySelectorAll('input[type=range]')[0].value);
-            const cars = parseInt(document.querySelectorAll('input[type=range]')[1].value);
+            const events = Array.from(checkboxes).map(cb => cb.value).filter(v => v !== 'on');
+            
+            const bikes = parseInt(document.querySelectorAll('input[type=range]')[3].value); // the 4th slider in doc
+            const cars = parseInt(document.querySelectorAll('input[type=range]')[4].value);
             const solar = document.getElementById('solar-toggle').classList.contains('on');
             const waste = document.getElementById('waste-toggle').classList.contains('on');
 
+            updateMockEcoPie(true); // show green actions effect visually
+
             try {
-                const res = await fetch('http://127.0.0.1:5000/api/whatif', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const res = await fetch('/api/whatif', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ events, bikes, cars, solar, waste })
                 });
                 const data = await res.json();
 
-                document.getElementById('wi-before').textContent = data.before;
-                document.getElementById('wi-after').textContent = data.after;
-                document.getElementById('wi-message').textContent = `✅ Green actions reduced debt by ${data.before - data.after} points`;
+                let adjustedBefore = data.before + (activeIncidents * 5);
+                let adjustedAfter = data.after + (activeIncidents * 5);
+
+                document.getElementById('wi-before').textContent = adjustedBefore;
+                document.getElementById('wi-after').textContent = adjustedAfter;
+                document.getElementById('wi-message').textContent = `✅ Green actions reduced debt by ${adjustedBefore - adjustedAfter} points`;
                 document.getElementById('whatif-result').classList.add('show');
 
             } catch (e) {
@@ -433,7 +477,5 @@
             }
         }
     </script>
-
 </body>
-
 </html>
